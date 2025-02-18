@@ -1,3 +1,11 @@
+"""VerificationService for users.
+
+Contains:
+- Generate code
+- Send code
+- Check code
+- Clean cods
+"""
 from string import digits
 from typing import Optional
 import secrets
@@ -17,7 +25,29 @@ from users.constants import (
 
 
 class VerificationService:
+    """Service for handling user verification through email confirmation codes.
+
+    This service provides functionality for:
+    - Generating confirmation codes
+    - Sending codes via email
+    - Verifying submitted codes
+    - Cleaning up expired codes
+
+    The service uses Redis for storing confirmation codes with TTL.
+    """
+
     def __init__(self, redis_client) -> None:
+        """Initialize the VerificationService.
+
+        Args:
+            redis_client: Redis client instance for storing confirmation codes
+
+        The service is configured with:
+        - Code length from MAX_CONFIRMATION_CODE_LENGTH
+        - TTL from CODE_TTL
+        - Key prefix from KEY_PREFIX
+        - Digits for code generation from string.digits
+        """
         self._code_length: int = MAX_CONFIRMATION_CODE_LENGTH
         self._digits: str = digits
         self._code_ttl: int = CODE_TTL
@@ -25,10 +55,18 @@ class VerificationService:
         self._redis: Redis = redis_client
 
     def generate(self, email: str) -> Optional[str]:
+        """Generate confirmation code.
+
+        Args:
+            email
+        Returns:
+            Code or ValueError
+        """
         if not email:
-            raise  ValueError('Email cannot be empty')
+            raise ValueError('Email cannot be empty')
         try:
-            code = ''.join(secrets.choice(self._digits) for _ in range(self._code_length))
+            code = ''.join(secrets.choice(self._digits)
+                           for _ in range(self._code_length))
             key = f'{self._key_prefix}{email}'
             self._redis.setex(key, self._code_ttl, code)
             return code
@@ -36,8 +74,14 @@ class VerificationService:
         except RedisError as e:
             raise ValueError('Failed to generate the code.') from e
 
-
     def send_code(self, email: str) -> None:
+        """Send confirmation code.
+
+        Args:
+            email
+        Returns:
+            None
+        """
         code = self.generate(email)
         if not code:
             raise ValueError('Failed to generate code')
@@ -50,6 +94,14 @@ class VerificationService:
         )
 
     def check_code(self, email: str, code: str) -> bool:
+        """Check confirmation code.
+
+        Args:
+            email
+            code
+        Returns:
+            True or False
+        """
         key = f'{self._key_prefix}{email}'
         stored_code = self._redis.get(key)
 
@@ -61,10 +113,18 @@ class VerificationService:
             return True
 
     def cleanup_old_codes(self, email: str) -> None:
+        """Send confirmation code.
+
+        Args:
+            email
+        Returns:
+            None
+        """
         try:
             key = f'{self._key_prefix}{email}'
             self._redis.delete(key)
         except RedisError as e:
             raise ValueError("Failed to cleanup verification codes") from e
+
 
 verification_service = VerificationService(redis_client)

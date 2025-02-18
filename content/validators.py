@@ -4,7 +4,7 @@ from django.utils import timezone
 from .constants import FIRST_YEAR_OF_MOVIES
 
 
-def validate_year(value):
+def validate_year(value) -> bool:
     if value > timezone.now().year:
         raise ValidationError(
             f'Год {value} из будующего!',

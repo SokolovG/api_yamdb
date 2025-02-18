@@ -1,3 +1,4 @@
+"""Redis config."""
 from redis import Redis
 
 

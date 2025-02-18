@@ -22,7 +22,12 @@ from users.constants import (
     KEY_PREFIX,
     MAX_CONFIRMATION_CODE_LENGTH,
 )
-from ..exceptions import EmailEmptyError, CodeGenerateError, CodeCleanError
+from ..exceptions import (
+    EmailEmptyError,
+    CodeGenerateError,
+    CodeCleanError,
+    CodeExpiredError
+)
 
 
 class VerificationService:
@@ -95,6 +100,13 @@ class VerificationService:
             fail_silently=False
         )
 
+    def _check_code_ttl(self, email: str) -> str:
+        key = f'{self._key_prefix}{email}'
+        if self._redis.ttl(key) > 0:
+            return key
+
+        raise CodeExpiredError()
+
     def check_code(self, email: str, code: str) -> bool:
         """Check confirmation code.
 
@@ -104,7 +116,9 @@ class VerificationService:
         Returns:
             True or False
         """
-        key = f'{self._key_prefix}{email}'
+
+        # Check TTL.
+        key = self._check_code_ttl(email)
         stored_code = self._redis.get(key)
 
         if not stored_code:

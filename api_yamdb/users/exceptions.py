@@ -30,3 +30,9 @@ class CodeCleanError(VerificationError):
     """Raised when cleanup of verification codes fails."""
 
     default_message = 'Failed to clean up verification codes'
+
+
+class CodeExpiredError(VerificationError):
+    """Raised when ttl code expired."""
+
+    default_message = 'The life span of the confirming code has expired.'

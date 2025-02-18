@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .constant import FIRST_YEAR_OF_MOVIES
+from .constants import FIRST_YEAR_OF_MOVIES
 
 
 def validate_year(value):

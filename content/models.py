@@ -2,7 +2,7 @@ from django.db import models
 
 from .validators import validate_year
 
-from .constant import (
+from .constants import (
     GENRE_NAME_MAX_LENGTH,
     GENRE_SLUG_MAX_LENGTH,
     CATEGORY_NAME_MAX_LENGTH,
@@ -84,7 +84,7 @@ class Title(models.Model):
         return self.name
 
 
-class GenreTitle(models.Model):
+class TitleGenre(models.Model):
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',

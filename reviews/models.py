@@ -8,7 +8,7 @@ class Review(models.Model):
 
     Атрибуты:
         title (ForeignKey): произведение, к которому относится отзыв.
-        text (TextField): текст отзыва.
+        text (TextField): текст отзыва.g
         author (ForeignKey): автор отзыва.
         score (IntegerField): оценка от 1 до 10.
         pub_date (DateTimeField): дата и время создания отзыва.

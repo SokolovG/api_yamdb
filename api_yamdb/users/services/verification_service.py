@@ -22,6 +22,7 @@ from users.constants import (
     KEY_PREFIX,
     MAX_CONFIRMATION_CODE_LENGTH,
 )
+from ..exceptions import EmailEmptyError, CodeGenerateError, CodeCleanError
 
 
 class VerificationService:
@@ -63,7 +64,7 @@ class VerificationService:
             Code or ValueError
         """
         if not email:
-            raise ValueError('Email cannot be empty')
+            raise EmailEmptyError()
         try:
             code = ''.join(secrets.choice(self._digits)
                            for _ in range(self._code_length))
@@ -72,7 +73,7 @@ class VerificationService:
             return code
 
         except RedisError as e:
-            raise ValueError('Failed to generate the code.') from e
+            raise CodeGenerateError from e
 
     def send_code(self, email: str) -> None:
         """Send confirmation code.
@@ -84,7 +85,8 @@ class VerificationService:
         """
         code = self.generate(email)
         if not code:
-            raise ValueError('Failed to generate code')
+            raise CodeGenerateError
+
         send_mail(
             subject=EMAIL_SUBJECT,
             message=f'{EMAIL_MESSAGE}{code}',
@@ -124,7 +126,7 @@ class VerificationService:
             key = f'{self._key_prefix}{email}'
             self._redis.delete(key)
         except RedisError as e:
-            raise ValueError("Failed to cleanup verification codes") from e
+            raise CodeCleanError from e
 
 
 verification_service = VerificationService(redis_client)

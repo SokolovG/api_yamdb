@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from users.models import User
+from content.models import Title
 
 class Review(models.Model):
     """Модель отзыва на произведение.
@@ -45,7 +46,7 @@ class Review(models.Model):
         return f'{self.author} - {self.title}'
 
 class Comment(models.Model):
-     """Модель комментария к отзыву.
+    """Модель комментария к отзыву.
 
     Атрибуты:
         review (ForeignKey): Ссылка на отзыв, к которому относится комментарий.

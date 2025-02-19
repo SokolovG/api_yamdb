@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .users_validators import (
+from api.users.validators import (
     email_validator,
     username_validator,
     ConfirmationCodeValidator

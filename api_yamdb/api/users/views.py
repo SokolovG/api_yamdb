@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from http import HTTPStatus
 
-from .users_serializer import SignUpSerializer, TokenObtainSerializer
+from api.users.serializers import SignUpSerializer, TokenObtainSerializer
 from users.services.verification_service import verification_service
 from users.exceptions import (
     EmailEmptyError,

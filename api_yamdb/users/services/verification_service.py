@@ -80,7 +80,7 @@ class VerificationService:
         except RedisError as e:
             raise CodeGenerateError from e
 
-    def send_code(self, email: str) -> None:
+    def send_code(self, email: str, code: str) -> None:
         """Send confirmation code.
 
         Args:
@@ -88,9 +88,6 @@ class VerificationService:
         Returns:
             None
         """
-        code = self.generate(email)
-        if not code:
-            raise CodeGenerateError
 
         send_mail(
             subject=EMAIL_SUBJECT,
@@ -99,6 +96,7 @@ class VerificationService:
             recipient_list=[email],
             fail_silently=False
         )
+
 
     def _check_code_ttl(self, email: str) -> str:
         key = f'{self._key_prefix}{email}'

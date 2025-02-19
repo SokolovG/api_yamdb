@@ -8,3 +8,7 @@ EMAIL_MESSAGE = 'Please confirm your account with code: '
 
 CODE_TTL = 300
 KEY_PREFIX = 'verification:code:'
+
+NOT_UNIQUE_MSG = 'already exists in the system. Please try another one.'
+EMAIL_NOT_UNIQUE_MSG = f'E - mail address {NOT_UNIQUE_MSG}'
+USERNAME_NOT_UNIQUE_MSG = f'Username {NOT_UNIQUE_MSG}'

@@ -12,6 +12,8 @@ from users.constants import (
     MAX_CONFIRMATION_CODE_LENGTH,
     USERNAME_MAX_LENGTH
 )
+from users.services.verification_service import verification_service
+from .exceptions import UserNotFoundException, ConfirmationCodeExpired, ConfirmationCodeInvalid
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -28,13 +30,13 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ['email', 'username']
 
 
-class TokenObtainSerializer(serializers.ModelSerializer):
+class TokenObtainSerializer(serializers.Serializer):
     username = serializers.CharField(validators=[
         username_validator,
         RegexValidator(
             regex=r'^[\w.@+-]+\Z',
         )
-    ], max_length=USERNAME_MAX_LENGTH)
+], max_length=USERNAME_MAX_LENGTH)
     confirmation_code = serializers.CharField(
         validators=[ConfirmationCodeValidator()],
         min_length=MAX_CONFIRMATION_CODE_LENGTH,
@@ -42,11 +44,10 @@ class TokenObtainSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = User
         fields = ['username', 'confirmation_code']
 
 
 class UserViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('__all__')
+        fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']

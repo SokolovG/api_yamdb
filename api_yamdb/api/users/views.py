@@ -12,7 +12,12 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from http import HTTPStatus
 
-from api.users.serializers import SignUpSerializer, TokenObtainSerializer
+from api.users.serializers import (
+    SignUpSerializer,
+    TokenObtainSerializer,
+    UserViewSerializer
+)
+from users.models import User
 from users.services.verification_service import verification_service
 from users.exceptions import (
     EmailEmptyError,
@@ -66,6 +71,8 @@ class TokenObtainView(views.APIView):
         return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
 
 class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserViewSerializer
     """ViewSet for actions with User model.
 
     Contains:

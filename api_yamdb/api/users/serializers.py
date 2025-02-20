@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 
 from api.users.validators import (
@@ -15,7 +16,12 @@ from users.constants import (
 
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[email_validator], max_length=MAX_EMAIL_LENGTH)
-    username = serializers.CharField(validators=[username_validator], max_length=USERNAME_MAX_LENGTH)
+    username = serializers.CharField(validators=[
+        username_validator,
+        RegexValidator(
+            regex=r'^[\w.@+-]+\Z',
+        )
+    ], max_length=USERNAME_MAX_LENGTH)
 
     class Meta:
         model = User
@@ -23,7 +29,12 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class TokenObtainSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(validators=[username_validator], max_length=USERNAME_MAX_LENGTH)
+    username = serializers.CharField(validators=[
+        username_validator,
+        RegexValidator(
+            regex=r'^[\w.@+-]+\Z',
+        )
+    ], max_length=USERNAME_MAX_LENGTH)
     confirmation_code = serializers.CharField(
         validators=[ConfirmationCodeValidator()],
         min_length=MAX_CONFIRMATION_CODE_LENGTH,
@@ -33,3 +44,9 @@ class TokenObtainSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'confirmation_code']
+
+
+class UserViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('__all__')

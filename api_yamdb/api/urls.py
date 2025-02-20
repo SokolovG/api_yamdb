@@ -7,6 +7,7 @@ from .views import (
     TitleViewSet,
 )
 
+
 router_v1 = routers.DefaultRouter()
 
 router_v1.register(
@@ -25,6 +26,8 @@ router_v1.register(
     basename='titles'
 )
 
+
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
+    path('v1/', include('reviews.urls')),
 ]

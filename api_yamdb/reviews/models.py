@@ -1,7 +1,8 @@
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from users.models import User
 from content.models import Title
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from users.models import User
+
 
 class Review(models.Model):
     """Модель отзыва на произведение.
@@ -24,7 +25,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
     pub_date = models.DateTimeField(
@@ -32,11 +33,12 @@ class Review(models.Model):
     )
 
     class Meta:
+        ordering = ('-pub_date',)
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
-                fields=['title', 'author'],
+                fields=('title', 'author'),
                 name='unique_review'
             )
         ]
@@ -49,17 +51,17 @@ class Comment(models.Model):
     """Модель комментария к отзыву.
 
     Атрибуты:
-        review (ForeignKey): Ссылка на отзыв, к которому относится комментарий.
-        text (TextField): Текст комментария.
-        author (ForeignKey): Ссылка на автора комментария (пользователя).
-        pub_date (DateTimeField): Дата и время создания комментария.
+        review (ForeignKey): отзыв, к которому относится комментарий.
+        text (TextField): текст комментария.
+        author (ForeignKey): автор комментария.
+        pub_date (DateTimeField): дата и время создания комментария.
     """
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    text = models.TextField(verbose_name='Текст комментария')
+    text = models.TextField()
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

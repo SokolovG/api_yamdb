@@ -1,10 +1,18 @@
 from rest_framework import serializers
-from .models import Review, Comment
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+from .models import Comment, Review
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'
+    )
+    score = serializers.IntegerField(
+        min_value=1,
+        max_value=10,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
 
     class Meta:

@@ -11,6 +11,7 @@ from rest_framework.request import Request
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework import status
+from rest_framework.serializers import ValidationError
 
 from api.users.serializers import (
     SignUpSerializer,
@@ -19,48 +20,32 @@ from api.users.serializers import (
 )
 from users.models import User
 from users.services.verification_service import verification_service
-from users.exceptions import (
-    EmailEmptyError,
-    CodeGenerateError,
-    SMTPException, CodeExpiredError,
-)
+from users.exceptions import (CodeExpiredError)
 
 
 
 class SignUpView(views.APIView):
     """Class for SignUpView for User."""
+
     def post(self, request: Request) -> Response:
         serializer = SignUpSerializer(data=request.data)
-        if serializer.is_valid():
-            validated_data = serializer.validated_data
-            email = validated_data.get('email')
-            username = validated_data.get('username')
-            if username == 'me':
-                return Response(
-                    {'username': ['Username cant be "me"']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            u = User.objects.filter(username=username).exists()
-            e = User.objects.filter(email=email).exists()
-
-            if e and not u:
-                return Response(
-                    {'email': ['Email already exists']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            try:
-                confirmation_code = verification_service.generate(username)
-                verification_service.send_code(email, confirmation_code)
-                User.objects.create(email=email, username=username)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            if error.get_codes().get('non_field_errors') == ['user_exists']:
                 return Response(status=status.HTTP_200_OK)
+            raise
 
-            except (CodeGenerateError, EmailEmptyError, SMTPException):
-                return Response(
-                    {'email': ['Failed to send confirmation code']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        serializer.save()
+        data = serializer.data
+        return Response(
+            {
+                'email': data['email'],
+                'username': data['username']
+            },
+            status=status.HTTP_200_OK
+        )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TokenObtainView(views.APIView):

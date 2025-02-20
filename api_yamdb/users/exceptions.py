@@ -1,5 +1,6 @@
 """Exceptions for user verification service."""
 
+from smtplib import SMTPException as _SMTPException
 
 class VerificationError(Exception):
     """Base class for verification service exceptions."""
@@ -35,4 +36,10 @@ class CodeCleanError(VerificationError):
 class CodeExpiredError(VerificationError):
     """Raised when ttl code expired."""
 
+
+    default_message = 'The life span of the confirming code has expired.'
+
+
+class SMTPException(_SMTPException):
+    """Raised when an error on the side occurs SMTP"""
     default_message = 'The life span of the confirming code has expired.'

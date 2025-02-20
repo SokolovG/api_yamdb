@@ -5,7 +5,10 @@ Contains User model.
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from .constants import MAX_EMAIL_LENGTH, MAX_ROLE_LENGTH
+from .constants import (
+    MAX_EMAIL_LENGTH,
+    MAX_ROLE_LENGTH, MAX_BIO_LENGTH
+)
 
 
 class User(AbstractUser):
@@ -34,6 +37,10 @@ class User(AbstractUser):
         max_length=MAX_ROLE_LENGTH,
         choices=RoleChoices.choices,
         default=RoleChoices.USER
+    )
+    bio = models.CharField(
+        max_length=MAX_BIO_LENGTH,
+        blank=True
     )
 
     @property

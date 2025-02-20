@@ -25,6 +25,7 @@ router_v1.register(
     basename='titles'
 )
 
+
 urlpatterns = [
     path('api/v1/', include(router_v1.urls)),
 ]

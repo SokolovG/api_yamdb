@@ -29,7 +29,3 @@ class ConfirmationCodeValidator:
     def __call__(self, code: str) -> None:
         if not code.isdigit():
             raise ValidationError('The code must contain only numbers.')
-
-        if len(code) != self.length:
-            raise ValidationError(f'The length of the code should be {self.length} numbers.')
-

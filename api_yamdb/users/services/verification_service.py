@@ -60,7 +60,6 @@ class VerificationService:
         self._key_prefix: str = KEY_PREFIX
         self._redis: Redis = redis_client
 
-
     def generate(self, username: str) -> Optional[str]:
         """Generate confirmation code.
 
@@ -70,37 +69,18 @@ class VerificationService:
             Code or ValueError
         """
         if not username:
-
-    def generate(self, email: str) -> Optional[str]:
-        """Generate confirmation code.
-
-        Args:
-            email
-        Returns:
-            Code or ValueError
-        """
-        if not email:
-
             raise EmailEmptyError()
         try:
             code = ''.join(secrets.choice(self._digits)
                            for _ in range(self._code_length))
-
             key = f'{self._key_prefix}{username}'
-
-            key = f'{self._key_prefix}{email}'
-
             self._redis.setex(key, self._code_ttl, code)
             return code
 
         except RedisError as e:
             raise CodeGenerateError from e
 
-
     def send_code(self, email: str, code: str) -> None:
-
-    def send_code(self, email: str) -> None:
-
         """Send confirmation code.
 
         Args:
@@ -109,12 +89,6 @@ class VerificationService:
             None
         """
 
-
-        code = self.generate(email)
-        if not code:
-            raise CodeGenerateError
-
-
         send_mail(
             subject=EMAIL_SUBJECT,
             message=f'{EMAIL_MESSAGE}{code}',
@@ -122,7 +96,6 @@ class VerificationService:
             recipient_list=[email],
             fail_silently=False
         )
-
 
 
     def _check_code_ttl(self, username: str) -> Optional[str]:
@@ -137,31 +110,13 @@ class VerificationService:
 
         Args:
             username
-
-    def _check_code_ttl(self, email: str) -> str:
-        key = f'{self._key_prefix}{email}'
-        if self._redis.ttl(key) > 0:
-            return key
-
-        raise CodeExpiredError()
-
-    def check_code(self, email: str, code: str) -> bool:
-        """Check confirmation code.
-
-        Args:
-            email
-
             code
         Returns:
             True or False
         """
 
         # Check TTL.
-
         key = f'{self._key_prefix}{username}'
-
-        key = self._check_code_ttl(email)
-
         stored_code = self._redis.get(key)
 
         if not stored_code:
@@ -171,28 +126,16 @@ class VerificationService:
             self._redis.delete(key)
             return True
 
-
     def cleanup_old_codes(self, username: str) -> None:
         """Send confirmation code.
 
         Args:
             username
-
-    def cleanup_old_codes(self, email: str) -> None:
-        """Send confirmation code.
-
-        Args:
-            email
-
         Returns:
             None
         """
         try:
-
             key = f'{self._key_prefix}{username}'
-
-            key = f'{self._key_prefix}{email}'
-
             self._redis.delete(key)
         except RedisError as e:
             raise CodeCleanError from e

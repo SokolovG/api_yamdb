@@ -1,12 +1,12 @@
-from django.core.validators import RegexValidator
 from rest_framework import serializers
 from api.users.validators import (
-    ConfirmationCodeValidator
+    ConfirmationCodeValidator, username_validator
 )
 from users.models import User
 from users.constants import (
     MAX_EMAIL_LENGTH,
-    USERNAME_MAX_LENGTH
+    USERNAME_MAX_LENGTH,
+    RESTRICTED_USERNAMES
 )
 from users.services.verification_service import verification_service
 from users.exceptions import (
@@ -19,26 +19,37 @@ from users.exceptions import (
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=MAX_EMAIL_LENGTH)
     username = serializers.CharField(validators=[
-        RegexValidator(
-            regex=r'^[\w.@+-]+\Z',
-        )
+        username_validator
     ], max_length=USERNAME_MAX_LENGTH)
 
     def create(self, validated_data):
         try:
-            user = super().create(validated_data)
-            confirmation_code = verification_service.generate(user.username)
-            verification_service.send_code(user.email, confirmation_code)
-            return user
+            self.user = super().create(validated_data)
+            confirmation_code = verification_service.generate(self.user.username)
+            verification_service.send_code(self.user.email, confirmation_code)
+            return self.user
 
-        except (CodeGenerateError, UsernameEmptyError, EmailSendError) as error:
+        except UsernameEmptyError as error:
             raise serializers.ValidationError({
-                'email': ['Failed to send confirmation code']
+                'username': [error.message]
+            })
+        except EmailSendError as error:
+            if self.user.id:
+                self.user.delete()
+            raise serializers.ValidationError({
+                'email': [error.message]
+            })
+        except CodeGenerateError as error:
+            raise serializers.ValidationError({
+                'non_field_errors': ['Technical error occurred. Please try again later.']
             })
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError('Username cant be "me"')
+        if not value:
+            raise serializers.ValidationError('Username cannot be empty')
+
+        if value.lower() in RESTRICTED_USERNAMES:
+            raise serializers.ValidationError(f'Username cannot be {value}')
 
         return value
 
@@ -67,11 +78,10 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class TokenObtainSerializer(serializers.Serializer):
-    username = serializers.CharField(validators=[
-        RegexValidator(
-            regex=r'^[\w.@+-]+\Z',
-        )
-], max_length=USERNAME_MAX_LENGTH)
+    username = serializers.CharField(
+        validators=[username_validator],
+        max_length=USERNAME_MAX_LENGTH
+    )
     confirmation_code = serializers.CharField(
         validators=[ConfirmationCodeValidator()]
     )
@@ -92,6 +102,7 @@ class TokenObtainSerializer(serializers.Serializer):
         raise serializers.ValidationError(
             {'confirmation_code': 'Invalid confirmation code'}
         )
+
 
 class UserViewSerializer(serializers.ModelSerializer):
     class Meta:

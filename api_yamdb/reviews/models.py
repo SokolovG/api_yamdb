@@ -1,3 +1,4 @@
+"""Модели для работы с отзывами и комментариями."""
 from content.models import Title
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -14,38 +15,41 @@ class Review(models.Model):
         score (IntegerField): оценка от 1 до 10.
         pub_date (DateTimeField): дата и время создания отзыва.
     """
+
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews',
+        related_name="reviews",
     )
-    text = models.TextField()
+    text = models.TextField(blank=False)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviews',
+        related_name="reviews",
     )
     score = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        validators=[MinValueValidator(1), MaxValueValidator(10)], blank=False
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
     )
 
     class Meta:
-        ordering = ('-pub_date',)
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
+        """Мета-класс для настройки модели отзывов."""
+
+        ordering = ("-pub_date",)
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
         constraints = [
             models.UniqueConstraint(
-                fields=('title', 'author'),
-                name='unique_review'
+                fields=("title", "author"), name="unique_review"
             )
         ]
 
-    def __str__(self):
-        # Строка формата 'автор - произведение'.
-        return f'{self.author} - {self.title}'
+    def __str__(self) -> str:
+        """Строка формата 'автор - произведение'."""
+        return f"{self.author} - {self.title}"
+
 
 class Comment(models.Model):
     """Модель комментария к отзыву.
@@ -56,25 +60,28 @@ class Comment(models.Model):
         author (ForeignKey): автор комментария.
         pub_date (DateTimeField): дата и время создания комментария.
     """
+
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
+        related_name="comments",
     )
-    text = models.TextField()
+    text = models.TextField(blank=False)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comments',
+        related_name="comments",
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
     )
 
     class Meta:
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
+        """Мета-класс для настройки модели комментариев."""
 
-    def __str__(self):
-        # Строка формата 'автор - отзыв'
-        return f'{self.author} - {self.review}'
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
+
+    def __str__(self) -> str:
+        """Строка формата 'автор - отзыв'."""
+        return f"{self.author} - {self.review}"

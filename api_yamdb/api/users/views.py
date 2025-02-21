@@ -10,62 +10,71 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from http import HTTPStatus
+from rest_framework import status
+from rest_framework.serializers import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.users.serializers import SignUpSerializer, TokenObtainSerializer
-from users.services.verification_service import verification_service
-from users.exceptions import (
-    EmailEmptyError,
-    CodeGenerateError,
-    SMTPException,
-    CodeExpiredError
+from api.users.serializers import (
+    SignUpSerializer,
+    TokenObtainSerializer,
+    UserViewSerializer
 )
+from users.models import User
+from users.services.verification_service import verification_service
+from users.exceptions import (CodeExpiredError)
 
 
 
 class SignUpView(views.APIView):
     """Class for SignUpView for User."""
+
     def post(self, request: Request) -> Response:
         serializer = SignUpSerializer(data=request.data)
-        if serializer.is_valid():
-            validated_data = serializer.validated_data
-            email = validated_data.get('email')
-            username = validated_data.get('username')
-            try:
-                confirmation_code = verification_service.generate(username)
-                verification_service.send_code(email, confirmation_code)
-                return Response(status=HTTPStatus.OK)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            if error.get_codes().get('non_field_errors') == ['user_exists']:
+                return Response(status=status.HTTP_200_OK)
+            raise
 
-            except (CodeGenerateError, EmailEmptyError, SMTPException):
-                return Response(
-                    {'email': ['Failed to send confirmation code']},
-                    status=HTTPStatus.BAD_REQUEST
-                )
-
-        return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+        serializer.save()
+        data = serializer.data
+        return Response(
+            {
+                'email': data['email'],
+                'username': data['username']
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 class TokenObtainView(views.APIView):
     """CLass for issuance of token to the user."""
     def post(self, request: Request) -> Response:
         serializer = TokenObtainSerializer(data=request.data)
-        if serializer.is_valid():
-            validated_data = serializer.validated_data
-            username = validated_data.get('username')
-            email = validated_data.get('email')
-            confirmation_code = validated_data.get('confirmation_code')
-            try:
-                if verification_service.check_code(code=confirmation_code, username=username):
-                    return Response(status=HTTPStatus.OK)
-            except CodeExpiredError:
+        try:
+            if serializer.is_valid(raise_exception=True):
+                username = serializer.validated_data.get('username')
+                user = User.objects.get(username=username)
+                refresh = RefreshToken.for_user(user)
                 return Response(
-                    {'email': ['Failed to confirm code']},
-                    status=HTTPStatus.BAD_REQUEST
+                    {'token': str(refresh)},
+                    status=status.HTTP_200_OK
                 )
 
-        return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+        except ValidationError as error:
+            if error.get_codes().get('username') == ['username_not_found']:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            raise
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserViewSerializer
+    lookup_field = 'username'
+
     """ViewSet for actions with User model.
 
     Contains:
@@ -75,4 +84,15 @@ class UserViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get', 'patch'])
     def me(self, request: Request) -> Response:
-        return Response
+        user = request.user
+        if request.method == 'GET':
+            serializer = self.serializer_class(instance=user)
+            data = serializer.data
+            return Response(serializer.data)
+
+        elif request.method == 'PATCH':
+            serializer = self.serializer_class(data=request.data, instance=user)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

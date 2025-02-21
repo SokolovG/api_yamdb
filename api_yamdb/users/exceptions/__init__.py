@@ -5,11 +5,13 @@ from users.exceptions.api import (
 )
 from users.exceptions.users import (
     VerificationError,
-    EmailEmptyError,
+    UsernameEmptyError,
     CodeGenerateError,
     CodeCleanError,
     CodeExpiredError,
-    SMTPException
+    EmailSendError,
+    CodeNotFoundError,
+    InvalidCodeError
 )
 
 
@@ -18,9 +20,11 @@ __all__ = [
     'ConfirmationCodeExpired',
     'ConfirmationCodeInvalid',
     'VerificationError',
-    'EmailEmptyError',
+    'UsernameEmptyError',
     'CodeGenerateError',
     'CodeCleanError',
     'CodeExpiredError',
-    'SMTPException'
+    'EmailSendError',
+    'CodeNotFoundError',
+    'InvalidCodeError'
 ]

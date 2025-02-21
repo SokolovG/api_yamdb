@@ -6,6 +6,7 @@ Contains:
 - Check code
 - Clean cods
 """
+from smtplib import SMTPException
 from string import digits
 from typing import Optional
 import secrets
@@ -23,10 +24,13 @@ from users.constants import (
     MAX_CONFIRMATION_CODE_LENGTH,
 )
 from ..exceptions import (
-    EmailEmptyError,
+    UsernameEmptyError,
     CodeGenerateError,
     CodeCleanError,
-    CodeExpiredError
+    CodeExpiredError,
+    EmailSendError,
+    CodeNotFoundError,
+    InvalidCodeError
 )
 
 
@@ -64,12 +68,17 @@ class VerificationService:
         """Generate confirmation code.
 
         Args:
-            username
+            username: str - Username to generate verification code for
         Returns:
-            Code or ValueError
+            str - Generated confirmation code
+        Raises:
+            UsernameEmptyError: If username is empty
+            CodeGenerateError: If Redis operation fails
         """
+
+
         if not username:
-            raise EmailEmptyError()
+            raise UsernameEmptyError()
         try:
             code = ''.join(secrets.choice(self._digits)
                            for _ in range(self._code_length))
@@ -77,25 +86,29 @@ class VerificationService:
             self._redis.setex(key, self._code_ttl, code)
             return code
 
-        except RedisError as e:
-            raise CodeGenerateError from e
+        except RedisError as error:
+            raise CodeGenerateError() from error
 
     def send_code(self, email: str, code: str) -> None:
         """Send confirmation code.
 
         Args:
-            email
-        Returns:
-            None
+            email: str - Email address to send code to
+            code: str - Verification code to send
+        Raises:
+            EmailSendError: If sending email fails
         """
 
-        send_mail(
-            subject=EMAIL_SUBJECT,
-            message=f'{EMAIL_MESSAGE}{code}',
-            from_email='YaReviewApp@example.com',
-            recipient_list=[email],
-            fail_silently=False
-        )
+        try:
+            send_mail(
+                subject=EMAIL_SUBJECT,
+                message=f'{EMAIL_MESSAGE}{code}',
+                from_email='YaReviewApp@example.com',
+                recipient_list=[email],
+                fail_silently=False
+            )
+        except SMTPException as error:
+            raise EmailSendError() from error
 
 
     def _check_code_ttl(self, username: str) -> Optional[str]:
@@ -109,25 +122,31 @@ class VerificationService:
         """Check confirmation code.
 
         Args:
-            username
-            code
+            username: str - Username to check code for
+            code: str - Verification code to check
+        Raises:
+            CodeExpiredError: If code has expired
+            CodeNotFoundError: If code not found
+            InvalidCodeError: If code does not match
         Returns:
-            True or False
+            bool - True if code is valid
         """
 
         # Check TTL.
-        key = f'{self._key_prefix}{username}'
+        key = self._check_code_ttl(username)
         stored_code = self._redis.get(key)
 
         if not stored_code:
-            return False
+            raise CodeNotFoundError()
 
-        if stored_code == code:
-            self._redis.delete(key)
-            return True
+        if stored_code != code:
+            raise InvalidCodeError()
+
+        self._redis.delete(key)
+        return True
 
     def cleanup_old_codes(self, username: str) -> None:
-        """Send confirmation code.
+        """Clean old cods.
 
         Args:
             username
@@ -137,8 +156,8 @@ class VerificationService:
         try:
             key = f'{self._key_prefix}{username}'
             self._redis.delete(key)
-        except RedisError as e:
-            raise CodeCleanError from e
+        except RedisError as error:
+            raise CodeCleanError from error
 
 
 verification_service = VerificationService(redis_client)

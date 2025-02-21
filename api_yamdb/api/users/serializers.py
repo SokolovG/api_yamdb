@@ -10,9 +10,9 @@ from users.constants import (
 )
 from users.services.verification_service import verification_service
 from users.exceptions import (
-    EmailEmptyError,
     CodeGenerateError,
-    SMTPException,
+    UsernameEmptyError,
+    EmailSendError
 )
 
 
@@ -31,7 +31,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             verification_service.send_code(user.email, confirmation_code)
             return user
 
-        except (CodeGenerateError, EmailEmptyError, SMTPException) as e:
+        except (CodeGenerateError, UsernameEmptyError, EmailSendError) as error:
             raise serializers.ValidationError({
                 'email': ['Failed to send confirmation code']
             })

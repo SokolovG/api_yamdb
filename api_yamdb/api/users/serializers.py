@@ -105,6 +105,13 @@ class TokenObtainSerializer(serializers.Serializer):
 
 
 class UserViewSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(choices=User.RoleChoices, default=User.RoleChoices.USER)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.context['request'].user.is_admin:
+            self.fields['role'].read_only = True
+
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']

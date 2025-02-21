@@ -37,13 +37,13 @@ class CodeExpiredError(VerificationError):
 
 
 class EmailSendError(VerificationError):
-    """Raised when an error occurs while sending email via SMTP"""
+    """Raised when an error occurs while sending email via SMTP."""
 
     default_message = 'Error occurred while sending email'
 
 
 class CodeNotFoundError(VerificationError):
-    """Raised when verification code is not found in storage for given username."""
+    """Raised when verification code is not found for given username."""
 
     default_message = 'Verification code not found'
 
@@ -52,5 +52,3 @@ class InvalidCodeError(VerificationError):
     """Raised when provided verification code does not match stored code."""
 
     default_message = 'Invalid verification code provided'
-
-

@@ -75,8 +75,6 @@ class VerificationService:
             UsernameEmptyError: If username is empty
             CodeGenerateError: If Redis operation fails
         """
-
-
         if not username:
             raise UsernameEmptyError()
         try:
@@ -98,7 +96,6 @@ class VerificationService:
         Raises:
             EmailSendError: If sending email fails
         """
-
         try:
             send_mail(
                 subject=EMAIL_SUBJECT,
@@ -144,7 +141,6 @@ class VerificationService:
         Returns:
             bool - True if code is valid
         """
-
         # Check TTL.
         key = self._get_valid_key(username)
         stored_code = self._redis.get(key)

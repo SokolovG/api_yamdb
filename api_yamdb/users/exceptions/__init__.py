@@ -1,3 +1,4 @@
+"""Module for custom exceptions for auth logic."""
 from users.exceptions.users import (
     VerificationError,
     UsernameEmptyError,

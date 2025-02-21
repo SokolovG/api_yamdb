@@ -25,11 +25,45 @@ from ..permissions import IsAdminOrForbidden
 from users.models import User
 
 
-
 class SignUpView(views.APIView):
-    """Class for SignUpView for User."""
+    """Handle user registration process.
+
+    This view processes new user registrations by validating provided
+    email and username, creating new user accounts, and triggering
+    email verification.
+
+    Endpoints:
+        POST /signup/: Create new user account
+
+    Permissions:
+        - AllowAny: Endpoint is public
+
+    Returns:
+        Response with status 200 and user data on success
+        Response with status 200 if user already exists
+        Response with validation errors otherwise
+    """
+
     permission_classes = [AllowAny]
+
     def post(self, request: Request) -> Response:
+        """Process user registration request.
+
+        Args:
+            request (Request): HTTP request containing user data
+                Required fields:
+                - email: User's email address
+                - username: Desired username
+
+        Returns:
+            Response: JSON response containing:
+                - email: Registered email
+                - username: Registered username
+            Status codes:
+                200: Registration successful or user exists
+                400: Validation errors
+        """
+        """"""
         serializer = SignUpSerializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -50,9 +84,41 @@ class SignUpView(views.APIView):
 
 
 class TokenObtainView(views.APIView):
-    """CLass for issuance of token to the user."""
+    """Handle JWT token generation for user authentication.
+
+    This view validates user credentials via confirmation code
+    and generates JWT tokens for authenticated sessions.
+
+    Endpoints:
+        POST /token/: Generate JWT token
+
+    Permissions:
+        - AllowAny: Endpoint is public
+
+    Returns:
+        Response with JWT token on success
+        Response with error details on failure
+    """
+
     permission_classes = [AllowAny]
+
     def post(self, request: Request) -> Response:
+        """Process token generation request.
+
+        Args:
+            request (Request): HTTP request containing authentication data
+                Required fields:
+                - username: User's username
+                - confirmation_code: Verification code from email
+
+        Returns:
+            Response: JSON containing:
+                - token: JWT access token
+            Status codes:
+                200: Token generated successfully
+                404: Username not found
+                400: Invalid confirmation code or validation errors
+        """
         serializer = TokenObtainSerializer(data=request.data)
         try:
             if serializer.is_valid(raise_exception=True):
@@ -73,6 +139,27 @@ class TokenObtainView(views.APIView):
 
 
 class UserViewSet(ModelViewSet):
+    """ViewSet for managing user accounts and profiles.
+
+    This ViewSet provides CRUD operations for user management
+    and includes a special endpoint for managing own profile.
+
+    Endpoints:
+        - GET /users/: List all users (admin only)
+        - POST /users/: Create new user (admin only)
+        - GET /users/{username}/: Retrieve specific user
+        - PATCH /users/{username}/: Update specific user
+        - DELETE /users/{username}/: Delete specific user
+        - GET/PATCH /users/me/: Manage own profile
+
+    Permissions:
+        - IsAuthenticated: Basic access
+        - IsAdminOrForbidden: Admin-only operations
+
+    Filters:
+        - Search: Filter users by username
+    """
+
     queryset = User.objects.all()
     serializer_class = UserViewSerializer
     permission_classes = [IsAuthenticated, IsAdminOrForbidden]
@@ -89,19 +176,43 @@ class UserViewSet(ModelViewSet):
     """
 
     def get_serializer_context(self):
+        """Get default serializer context with request, view and format."""
         return super().get_serializer_context()
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated])
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated]
+    )
     def me(self, request: Request) -> Response:
+        """Handle current user profile operations.
+
+        Args:
+           request (Request): HTTP request object.
+               GET: Retrieve user profile
+               PATCH: Update profile fields
+
+        Returns:
+           Response: JSON with profile data
+           Status codes:
+               200: Success
+               400: Validation errors on update
+        """
         user = request.user
         if request.method == 'GET':
             serializer = self.get_serializer(instance=user)
-            data = serializer.data
             return Response(serializer.data)
 
         elif request.method == 'PATCH':
-            serializer = self.get_serializer(data=request.data, instance=user, partial=True)
+            serializer = self.get_serializer(
+                data=request.data,
+                instance=user,
+                partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )

@@ -54,4 +54,6 @@ class User(AbstractUser):
         return self.role == self.RoleChoices.MODERATOR
 
     class Meta:
+        """CLass meta with ordering by username."""
+
         ordering = ['username']

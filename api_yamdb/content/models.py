@@ -64,7 +64,7 @@ class Title(models.Model):
         'Описание',
         blank=True
     )
-    rating = models.IntegerField(
+    rating = models.PositiveIntegerField(
         'Рейтинг',
         null=True,
         default=None

@@ -2,6 +2,7 @@
 
 from smtplib import SMTPException as _SMTPException
 
+
 class VerificationError(Exception):
     """Base class for verification service exceptions."""
 
@@ -43,3 +44,4 @@ class CodeExpiredError(VerificationError):
 class SMTPException(_SMTPException):
     """Raised when an error on the side occurs SMTP"""
     default_message = 'The life span of the confirming code has expired.'
+

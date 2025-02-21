@@ -20,8 +20,6 @@ from api.users.serializers import (
     UserViewSerializer
 )
 from users.models import User
-from users.services.verification_service import verification_service
-from users.exceptions import (CodeExpiredError)
 
 
 

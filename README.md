@@ -43,9 +43,12 @@ venv\Scripts\activate  # For Windows
 ```bash
 pip install -r requirements.txt
 ```
+4. If you do not want to use Redis, skip step 4.1.
 
-4. Install and configure Redis:
+4.1 Install and configure Redis:
 ```bash
+Set in the settings
+REDIS_ENABLED = True
 # For MacOS (using Homebrew)
 brew install redis
 brew services start redis
@@ -148,9 +151,12 @@ venv\Scripts\activate  # Для Windows
 ```bash
 pip install -r requirements.txt
 ```
+4. Если вы не хотите использовать Redis, пропустите шаг 4.1.
 
-4. Установите и настройте Redis:
+4.1 Установите и настройте Redis:
 ```bash
+Выставите в настройках
+REDIS_ENABLED = True
 # Для MacOS (используя Homebrew)
 brew install redis
 brew services start redis

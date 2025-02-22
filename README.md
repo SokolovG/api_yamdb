@@ -22,6 +22,8 @@ YaMDb is a service that collects user reviews of various works of art: books, mo
 - Authentication: JWT tokens
 - Documentation: ReDoc
 
+### All API documentation is available at /redoc
+
 ### Installation and Setup
 1. Clone the repository:
 ```bash
@@ -101,6 +103,8 @@ YaMDb - это сервис, который собирает отзывы пол
 - База данных: Sqlite + Redis
 - Аутентификация: JWT токены
 - Документация: ReDoc
+
+### Вся документация API доступна по адресу /redoc
 
 ### Установка и запуск
 1. Клонируйте репозиторий:

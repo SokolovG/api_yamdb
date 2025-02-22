@@ -12,6 +12,7 @@ from .constants import (
 
 
 class Category(models.Model):
+    """Категории"""
     name = models.CharField(
         'Наименование',
         max_length=CATEGORY_NAME_MAX_LENGTH
@@ -27,11 +28,12 @@ class Category(models.Model):
         verbose_name_plural = 'Категории'
         ordering = ('name',)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Genre(models.Model):
+    """Жанры"""
     name = models.CharField(
         'Наименование',
         max_length=GENRE_NAME_MAX_LENGTH
@@ -47,11 +49,12 @@ class Genre(models.Model):
         verbose_name_plural = 'Жанры'
         ordering = ('name',)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Title(models.Model):
+    """Произведение"""
     name = models.CharField(
         'Наименование',
         max_length=TITLE_NAME_MAX_LENGTH
@@ -61,8 +64,15 @@ class Title(models.Model):
         validators=[validate_year]
     )
     description = models.TextField(
-        verbose_name='Описание',
-        blank=True
+        'Описание',
+        blank=True,
+        null=True
+    )
+    rating = models.IntegerField(
+        'Рейтинг',
+        null=True,
+        blank=True,
+        default=0
     )
     genre = models.ManyToManyField(
         Genre,
@@ -72,7 +82,8 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category,
         verbose_name='Категория',
-        on_delete=models.CASCADE
+        blank=True, null=True,
+        on_delete=models.SET_NULL
     )
 
     class Meta:
@@ -80,11 +91,12 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
         ordering = ('name',)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class TitleGenre(models.Model):
+    """Объект связи произведений и жанров"""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -100,5 +112,5 @@ class TitleGenre(models.Model):
         verbose_name = 'Произведение и жанр'
         verbose_name_plural = 'Произведения и жанры'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.title}, жанр <-> {self.genre}'

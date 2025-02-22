@@ -119,6 +119,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 DEFAULT_FROM_EMAIL = 'YAmdb@example.com'
 
+# Redis settings
+REDIS_ENABLED = False
+
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'

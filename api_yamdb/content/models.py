@@ -83,7 +83,6 @@ class Title(models.Model):
         on_delete=models.SET_NULL
     )
 
-
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'

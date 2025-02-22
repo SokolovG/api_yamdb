@@ -171,5 +171,7 @@ pip install -r requirements.txt
 2. Расположение загружаемых файлов: static/data:
 
 3. Запуск импорта:
-```python manage.py import_csv 
+```bash
+python manage.py import_csv 
 ```
+

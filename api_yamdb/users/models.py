@@ -52,3 +52,8 @@ class User(AbstractUser):
     def is_moderator(self) -> bool:
         """Return bool if user is moderator."""
         return self.role == self.RoleChoices.MODERATOR
+
+    class Meta:
+        """CLass meta with ordering by username."""
+
+        ordering = ['username']

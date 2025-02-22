@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+# api_yamdb
+api_yamdb
+Не забудьте оформить `README.md`
+=======
 **[English](#english) | [Русский](#russian)**
 
 ## English
@@ -159,3 +164,17 @@ python manage.py runserver
 7. Приложение будет доступно по адресам:
 - API бэкенда: http://localhost:8000
 - Документация API: http://localhost:8000/redoc/
+
+
+### Импорт CSV файлов
+
+1. Установите зависимости (добавлена зависимость от pandas):
+```bash
+pip install -r requirements.txt
+```
+
+2. Расположение загружаемых файлов: static/data:
+
+3. Запуск импорта:
+```python manage.py import_csv 
+```

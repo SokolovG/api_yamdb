@@ -17,3 +17,4 @@ toml==0.10.2
 typing_extensions==4.12.2
 urllib3==1.26.20
 djangorestframework-simplejwt==5.3.1
+pandas==2.2.3

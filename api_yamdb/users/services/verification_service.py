@@ -12,6 +12,7 @@ from typing import Optional, Final
 import secrets
 
 from django.core.mail import send_mail
+from django.conf import settings
 from redis import Redis
 from redis.exceptions import RedisError
 
@@ -54,15 +55,20 @@ class VerificationService:
 
         The service is configured with:
         - Code length from MAX_CONFIRMATION_CODE_LENGTH
-        - TTL from CODE_TTL
+        - Digits
         - Key prefix from KEY_PREFIX
-        - Digits for code generation from string.digits
+        - TTL from CODE_TTL
+        - Use_redis bool param
+        - Redis config
+        - Local storage for saving code
         """
         self._code_length: Final[int] = MAX_CONFIRMATION_CODE_LENGTH
         self._digits: Final[str] = digits
         self._code_ttl: Final[int] = CODE_TTL
         self._key_prefix: Final[str] = KEY_PREFIX
+        self.use_redis = hasattr(settings, 'REDIS_ENABLED') and settings.REDIS_ENABLED
         self._redis: Redis = redis_client
+        self._local_storage = {}
 
     def generate(self, username: str) -> Optional[str]:
         """Generate confirmation code.
@@ -80,11 +86,15 @@ class VerificationService:
         try:
             code = ''.join(secrets.choice(self._digits)
                            for _ in range(self._code_length))
-            key = f'{self._key_prefix}{username}'
-            # Like verification:code:123456
-            self._redis.setex(key, self._code_ttl, code)
-            # Save kode in redis with ttl.
-            return code
+            if self.use_redis:
+                key = f'{self._key_prefix}{username}'
+                # Like verification:code:123456
+                self._redis.setex(key, self._code_ttl, code)
+                # Save kode in redis with ttl.
+                return code
+            else:
+                self._local_storage[username] = code
+                return code
 
         except RedisError as error:
             raise CodeGenerateError() from error
@@ -120,15 +130,19 @@ class VerificationService:
             CodeExpiredError: If code has expired
             CodeNotFoundError: If code not found
         """
-        key = f'{self._key_prefix}{username}'
-        ttl = self._redis.ttl(key)
+        if self.use_redis:
+            key = f'{self._key_prefix}{username}'
+            ttl = self._redis.ttl(key)
 
-        if ttl == -2:  # Key does not exist
-            raise CodeNotFoundError()
-        if ttl <= 0:  # Key exists but expired
-            raise CodeExpiredError()
-
-        return key
+            if ttl == -2:  # Key does not exist
+                raise CodeNotFoundError()
+            if ttl <= 0:  # Key exists but expired
+                raise CodeExpiredError()
+            return key
+        else:
+            if username not in self._local_storage:
+                raise CodeNotFoundError()
+            return username
 
     def check_code(self, code: str, username: str) -> bool:
         """Check confirmation code.
@@ -144,17 +158,28 @@ class VerificationService:
             bool - True if code is valid
         """
         # Check TTL.
-        key = self._get_valid_key(username)
-        stored_code = self._redis.get(key)
+        if self.use_redis:
+            key = self._get_valid_key(username)
+            stored_code = self._redis.get(key)
 
-        if not stored_code:  # If code is empty
-            raise CodeNotFoundError()
+            if not stored_code:  # If code is empty
+                raise CodeNotFoundError()
 
-        if stored_code != code:
-            raise InvalidCodeError()
+            if stored_code != code:
+                raise InvalidCodeError()
 
-        self._redis.delete(key)
-        return True
+            self._redis.delete(key)
+            return True
+        else:
+            stored_code = self._local_storage.get(username)
+            if not stored_code:
+                raise CodeNotFoundError()
+
+            if stored_code != code:
+                raise InvalidCodeError()
+
+            del self._local_storage[username]
+            return True
 
     def cleanup_old_codes(self, username: str) -> None:
         """Clean up verification codes for the given username.
@@ -168,11 +193,15 @@ class VerificationService:
             CodeCleanError: If Redis operation fails
         """
         try:
-            key = f'{self._key_prefix}{username}'
-            result = self._redis.delete(key)
-            if result is None:
-                raise CodeCleanError("Redis operation failed")
-        except RedisError as error:
+            if self.use_redis:
+                key = f'{self._key_prefix}{username}'
+                result = self._redis.delete(key)
+                if result is None:
+                    raise CodeCleanError("Redis operation failed")
+            else:
+                del self._local_storage[username]
+
+        except (RedisError, KeyError) as error:
             raise CodeCleanError() from error
 
 

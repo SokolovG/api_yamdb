@@ -5,7 +5,7 @@ from rest_framework import viewsets, filters
 
 from content.models import Category, Genre, Title
 
-from .mixins import CreateDestroyListViewSet
+from .viewsets import CreateDestroyListViewSet
 
 from .permissions import IsAdminOrReadOnly
 

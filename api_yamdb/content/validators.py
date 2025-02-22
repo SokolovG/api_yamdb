@@ -5,6 +5,7 @@ from .constants import FIRST_YEAR_OF_MOVIES
 
 
 def validate_year(value) -> bool:
+    """Проверка коррекности года"""
     if value > timezone.now().year:
         raise ValidationError(
             f'Год {value} из будующего!',

@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.INFO, format=FORMATTER)
 
 
 class Command(BaseCommand):
+    """Команда импорта CSV файлов"""
 
     def handle(self, *args, **kwargs):
         conn = sqlite3.connect('db.sqlite3')

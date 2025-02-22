@@ -69,6 +69,7 @@ class SignUpSerializer(serializers.ModelSerializer):
                 self.user.username
             )
             verification_service.send_code(self.user.email, confirmation_code)
+            print("Email sent")
             return self.user
 
         except UsernameEmptyError as error:

@@ -62,12 +62,14 @@ class Title(models.Model):
     )
     description = models.TextField(
         'Описание',
-        default=0
+        blank=True,
+        null=True
     )
     rating = models.IntegerField(
         'Рейтинг',
+        null=True,
         blank=True,
-        null=True
+        default=0
     )
     genre = models.ManyToManyField(
         Genre,

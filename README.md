@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+# api_yamdb
+api_yamdb
+Не забудьте оформить `README.md`
+=======
 **[English](#english) | [Русский](#russian)**
 
 ## English
@@ -159,3 +164,4 @@ python manage.py runserver
 7. Приложение будет доступно по адресам:
 - API бэкенда: http://localhost:8000
 - Документация API: http://localhost:8000/redoc/
+>>>>>>> b1edbbe8d647da9598bd0bc31ef95dda922bb035

@@ -66,7 +66,10 @@ class VerificationService:
         self._digits: Final[str] = digits
         self._code_ttl: Final[int] = CODE_TTL
         self._key_prefix: Final[str] = KEY_PREFIX
-        self.use_redis = hasattr(settings, 'REDIS_ENABLED') and settings.REDIS_ENABLED
+        self.use_redis = (
+            hasattr(settings, 'REDIS_ENABLED')
+            and settings.REDIS_ENABLED
+        )
         self._redis: Redis = redis_client
         self._local_storage = {}
 

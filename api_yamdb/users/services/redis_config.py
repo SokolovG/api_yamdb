@@ -1,4 +1,8 @@
-"""Redis config."""
+"""Redis config.
+
+Contains setting:
+- Auto decode
+"""
 from redis import Redis
 
 

@@ -75,13 +75,15 @@ class VerificationService:
             UsernameEmptyError: If username is empty
             CodeGenerateError: If Redis operation fails
         """
-        if not username:
+        if not username:  # Username ist empty
             raise UsernameEmptyError()
         try:
             code = ''.join(secrets.choice(self._digits)
                            for _ in range(self._code_length))
             key = f'{self._key_prefix}{username}'
+            # Like verification:code:123456
             self._redis.setex(key, self._code_ttl, code)
+            # Save kode in redis with ttl.
             return code
 
         except RedisError as error:
@@ -100,7 +102,7 @@ class VerificationService:
             send_mail(
                 subject=EMAIL_SUBJECT,
                 message=f'{EMAIL_MESSAGE}{code}',
-                from_email='YaReviewApp@example.com',
+                from_email='Yamdb@example.com',
                 recipient_list=[email],
                 fail_silently=False
             )
@@ -145,7 +147,7 @@ class VerificationService:
         key = self._get_valid_key(username)
         stored_code = self._redis.get(key)
 
-        if not stored_code:
+        if not stored_code:  # If code is empty
             raise CodeNotFoundError()
 
         if stored_code != code:

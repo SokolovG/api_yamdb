@@ -32,3 +32,10 @@ class IsAdminAuthorModeratorOrReadOnly(permissions.BasePermission):
                 or obj.author == request.user
                 or request.user.is_moderator
                 )
+
+class IsAdminOrForbidden(permissions.BasePermission):
+    """Разрешает создавать, удалять, изменять
+    объект только пользователю с ролью admin.
+    """
+    def has_permission(self, request, view):
+        return request.user.is_admin

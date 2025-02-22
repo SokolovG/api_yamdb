@@ -12,6 +12,7 @@ from .constants import (
 
 
 class Category(models.Model):
+    """Категории"""
     name = models.CharField(
         'Наименование',
         max_length=CATEGORY_NAME_MAX_LENGTH
@@ -32,6 +33,7 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
+    """Жанры"""
     name = models.CharField(
         'Наименование',
         max_length=GENRE_NAME_MAX_LENGTH
@@ -52,6 +54,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
+    """Произведение"""
     name = models.CharField(
         'Наименование',
         max_length=TITLE_NAME_MAX_LENGTH
@@ -93,6 +96,7 @@ class Title(models.Model):
 
 
 class TitleGenre(models.Model):
+    """Объект связи произведений и жанров"""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',

@@ -20,6 +20,7 @@ from .serializers import (
 
 
 class CategoryViewSet(CreateDestroyListViewSet):
+    """Вьюсет для категорий"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -29,6 +30,7 @@ class CategoryViewSet(CreateDestroyListViewSet):
 
 
 class GenreViewSet(CreateDestroyListViewSet):
+    """Вьюсет для жанров"""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -38,6 +40,7 @@ class GenreViewSet(CreateDestroyListViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для произведения"""
     queryset = Title.objects.all().annotate(
         Avg('reviews__score')
     ).order_by('name')

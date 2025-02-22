@@ -1,3 +1,14 @@
+"""Api urls.
+
+Contains:
+- Category endpoints (/categories/)
+- Genre endpoints (/genres/)
+- Title endpoints (/titles/)
+- User endpoints (/users/)
+- Review endpoints (/titles/{title_id}/reviews/)
+- Comment endpoints (/titles/{title_id}/reviews/{review_id}/comments/)
+- Auth endpoints (/auth/signup/, /auth/token/)
+"""
 from django.urls import include, path
 from rest_framework import routers
 
@@ -9,12 +20,13 @@ from .views import (
 from api.users import (
     SignUpView,
     TokenObtainView,
-    UserViewSet
+    UserViewSet,
 )
 from .reviews.views import (
     ReviewViewSet,
     CommentViewSet,
 )
+
 
 router_v1 = routers.DefaultRouter()
 

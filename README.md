@@ -82,6 +82,29 @@ python manage.py runserver
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/redoc/
 
+
+### Register a new user:
+
+1. Send the required request with correct data as described in the API documentation
+2. Check the sent_email directory and copy the code for confirmation.
+3. Enter this code in the next request and receive the token.
+
+
+### Import CSV files
+
+1. Install dependencies (pandas dependency added):
+```bash
+pip install -r requirements.txt
+```
+
+2. Location of downloaded files: static/data:
+
+3. Run the import:
+```bash
+python manage.py import_csv 
+```
+
+
 ## Russian
 
 ### О проекте Api YAmdb
@@ -163,6 +186,13 @@ python manage.py runserver
 7. Приложение будет доступно по адресам:
 - API бэкенда: http://localhost:8000
 - Документация API: http://localhost:8000/redoc/
+
+
+### Регистрация нового пользователя:
+
+1. Отправьте нужный запрос с корректными данными, как описано в документации к API
+2. Проверьте директорию sent_email и скопируйте код для подтверждения.
+3. Введите данный код в следующем запросе и получите токен.
 
 
 ### Импорт CSV файлов

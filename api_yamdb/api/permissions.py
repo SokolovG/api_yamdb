@@ -33,6 +33,7 @@ class IsAdminAuthorModeratorOrReadOnly(permissions.BasePermission):
                 or request.user.is_moderator
                 )
 
+
 class IsAdminOrForbidden(permissions.BasePermission):
     """Разрешает создавать, удалять, изменять
     объект только пользователю с ролью admin.

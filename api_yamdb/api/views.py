@@ -5,14 +5,17 @@ from rest_framework import viewsets, filters
 
 from content.models import Category, Genre, Title
 
-from .mixins import CreateDestroyListViewSet
+from .viewsets import CreateDestroyListViewSet
 
 from .permissions import IsAdminOrReadOnly
+
+from content.filters import TitlesFilter
 
 from .serializers import (
     CategorySerializer,
     GenreSerializer,
     TitleSerializer,
+    ReadOnlyTitleSerializer,
 )
 
 
@@ -41,4 +44,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitlesFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
+    def get_serializer_class(self):
+        if self.action in ('retrieve', 'list'):
+            return ReadOnlyTitleSerializer
+        return TitleSerializer

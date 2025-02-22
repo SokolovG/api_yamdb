@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
     'content.apps.ContentConfig',
+    'core.apps.CoreConfig',
     'reviews.apps.ReviewsConfig'
 ]
 

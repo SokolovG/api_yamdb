@@ -3,18 +3,18 @@
 ## English
 
 ### About Api YAmdb
-Api YAmdb is a RESTful API service that provides access to the YaMdb database. This service allows users to work with titles, categories, genres, and reviews.
+YaMDb is a service that collects user reviews of various works of art: books, movies, music, and others. The project provides API for content management and user interaction with the database of works.
 
-### Key Features
-- User authentication and authorization
-- #
-- #
-- #
+### Functionality
 
-### Available Endpoints
-- #
-- #
-- #
+- User authentication via JWT tokens
+- User registration via a code sent to the mail
+- User role management (administrator, moderator, user)
+- Create and manage categories of works (movies, books, music, etc.)
+- Adding and editing works, linking them to genres and categories
+- Writing reviews of works with ratings from 1 to 10
+- Commenting on other users' reviews
+- Forming a rating of works based on user ratings
 
 ### Tech Stack
 - Backend: Django + DRF
@@ -83,18 +83,18 @@ python manage.py runserver
 ## Russian
 
 ### О проекте Api YAmdb
-Api YAmdb - это RESTful API сервис, предоставляющий доступ к базе данных YaMdb. Этот сервис позволяет пользователям работать с произведениями, категориями, жанрами и отзывами.
+YaMDb - это сервис, который собирает отзывы пользователей на различные произведения искусства: книги, фильмы, музыку и др. Проект предоставляет API для управления контентом и взаимодействия пользователей с базой данных произведений.
 
-### Основные возможности
-- Аутентификация и авторизация пользователей
-- #
-- #
-- #
+### Функциональность
 
-### Доступные эндпоинты
-- #
-- #
-- #
+- Аутентификация пользователей через JWT-токены
+- Регистрация пользователей через код, приходящий на почту
+- Управление ролями пользователей (администратор, модератор, пользователь)
+- Создание и управление категориями произведений (фильмы, книги, музыка и т.д.)
+- Добавление и редактирование произведений, привязка их к жанрам и категориям
+- Написание отзывов на произведения с оценками от 1 до 10
+- Комментирование отзывов других пользователей
+- Формирование рейтинга произведений на основе оценок пользователей
 
 ### Технологический стек
 - Бэкенд: Django + DRF

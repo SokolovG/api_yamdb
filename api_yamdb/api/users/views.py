@@ -1,10 +1,3 @@
-"""Views module for Users.
-
-Contains:
-- SignUpView
-- TokenObtainView
-- UserViewSet
-"""
 from rest_framework import views, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -25,7 +18,21 @@ from ..permissions import IsAdminOrForbidden
 from users.models import User
 
 
-class SignUpView(views.APIView):
+class PublicAPIView(views.APIView):
+    """Base class for public API endpoints.
+
+    This view is accessible without authentication.
+
+    Attributes:
+        permission_classes: List containing AllowAny permission class
+        authentication_classes: Empty list to disable authentication
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+
+class SignUpView(PublicAPIView):
     """Handle user registration process.
 
     This view processes new user registrations by validating provided
@@ -44,8 +51,6 @@ class SignUpView(views.APIView):
         Response with validation errors otherwise
     """
 
-    permission_classes = [AllowAny]
-
     def post(self, request: Request) -> Response:
         """Process user registration request.
 
@@ -63,7 +68,6 @@ class SignUpView(views.APIView):
                 200: Registration successful or user exists
                 400: Validation errors
         """
-        """"""
         serializer = SignUpSerializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -83,7 +87,7 @@ class SignUpView(views.APIView):
         )
 
 
-class TokenObtainView(views.APIView):
+class TokenObtainView(PublicAPIView):
     """Handle JWT token generation for user authentication.
 
     This view validates user credentials via confirmation code
@@ -99,8 +103,6 @@ class TokenObtainView(views.APIView):
         Response with JWT token on success
         Response with error details on failure
     """
-
-    permission_classes = [AllowAny]
 
     def post(self, request: Request) -> Response:
         """Process token generation request.
@@ -121,21 +123,20 @@ class TokenObtainView(views.APIView):
         """
         serializer = TokenObtainSerializer(data=request.data)
         try:
-            if serializer.is_valid(raise_exception=True):
-                username = serializer.validated_data.get('username')
-                user = User.objects.get(username=username)
-                refresh = RefreshToken.for_user(user)
-                return Response(
-                    {'token': str(refresh.access_token)},
-                    status=status.HTTP_200_OK
-                )
+            serializer.is_valid(raise_exception=True)
+            username = serializer.validated_data.get('username')
+            user = User.objects.get(username=username)
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {'token': str(refresh.access_token)},
+                status=status.HTTP_200_OK
+            )
 
         except ValidationError as error:
             if error.get_codes().get('username') == ['username_not_found']:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             raise
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(ModelViewSet):
@@ -209,10 +210,6 @@ class UserViewSet(ModelViewSet):
                 instance=user,
                 partial=True
             )
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

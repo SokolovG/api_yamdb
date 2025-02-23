@@ -1,8 +1,7 @@
-"""Сериализаторы для моделей отзывов и комментариев."""
-from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
 
 from reviews.models import Comment, Review
+from reviews.constants import MIN_SCORE, MAX_SCORE
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -12,9 +11,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True, slug_field="username"
     )
     score = serializers.IntegerField(
-        min_value=1,
-        max_value=10,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        min_value=MIN_SCORE,
+        max_value=MAX_SCORE,
     )
 
     class Meta:

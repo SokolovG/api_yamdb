@@ -9,12 +9,13 @@ from .views import (
 from api.users import (
     SignUpView,
     TokenObtainView,
-    UserViewSet
+    UserViewSet,
 )
 from .reviews.views import (
     ReviewViewSet,
     CommentViewSet,
 )
+
 
 router_v1 = routers.DefaultRouter()
 

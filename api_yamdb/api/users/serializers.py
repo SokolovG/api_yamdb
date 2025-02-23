@@ -1,10 +1,3 @@
-"""Serializer for users API.
-
-Contains:
-- SignUpSerializer
-- TokenObtainSerializer
-- UserViewSerializer
-"""
 from rest_framework import serializers
 from api.users.validators import (
     ConfirmationCodeValidator, username_validator

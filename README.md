@@ -3,24 +3,26 @@
 ## English
 
 ### About Api YAmdb
-Api YAmdb is a RESTful API service that provides access to the YaMdb database. This service allows users to work with titles, categories, genres, and reviews.
+YaMDb is a service that collects user reviews of various works of art: books, movies, music, and others. The project provides API for content management and user interaction with the database of works.
 
-### Key Features
-- User authentication and authorization
-- #
-- #
-- #
+### Functionality
 
-### Available Endpoints
-- #
-- #
-- #
+- User authentication via JWT tokens
+- User registration via a code sent to the mail
+- User role management (administrator, moderator, user)
+- Create and manage categories of works (movies, books, music, etc.)
+- Adding and editing works, linking them to genres and categories
+- Writing reviews of works with ratings from 1 to 10
+- Commenting on other users' reviews
+- Forming a rating of works based on user ratings
 
 ### Tech Stack
 - Backend: Django + DRF
 - Database: Sqlite + Redis
 - Authentication: JWT tokens
 - Documentation: ReDoc
+
+### All API documentation is available at /redoc
 
 ### Installation and Setup
 1. Clone the repository:
@@ -41,9 +43,12 @@ venv\Scripts\activate  # For Windows
 ```bash
 pip install -r requirements.txt
 ```
+4. If you do not want to use Redis, skip step 4.1.
 
-4. Install and configure Redis:
+4.1 Install and configure Redis:
 ```bash
+Set in the settings
+REDIS_ENABLED = True
 # For MacOS (using Homebrew)
 brew install redis
 brew services start redis
@@ -80,27 +85,52 @@ python manage.py runserver
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/redoc/
 
+
+### Register a new user:
+
+1. Send the required request with correct data as described in the API documentation
+2. Check the sent_email directory and copy the code for confirmation.
+3. Enter this code in the next request and receive the token.
+
+
+### Import CSV files
+
+1. Install dependencies (pandas dependency added):
+```bash
+pip install -r requirements.txt
+```
+
+2. Location of downloaded files: static/data:
+
+3. Run the import:
+```bash
+python manage.py import_csv 
+```
+
+
 ## Russian
 
 ### О проекте Api YAmdb
-Api YAmdb - это RESTful API сервис, предоставляющий доступ к базе данных YaMdb. Этот сервис позволяет пользователям работать с произведениями, категориями, жанрами и отзывами.
+YaMDb - это сервис, который собирает отзывы пользователей на различные произведения искусства: книги, фильмы, музыку и др. Проект предоставляет API для управления контентом и взаимодействия пользователей с базой данных произведений.
 
-### Основные возможности
-- Аутентификация и авторизация пользователей
-- #
-- #
-- #
+### Функциональность
 
-### Доступные эндпоинты
-- #
-- #
-- #
+- Аутентификация пользователей через JWT-токены
+- Регистрация пользователей через код, приходящий на почту
+- Управление ролями пользователей (администратор, модератор, пользователь)
+- Создание и управление категориями произведений (фильмы, книги, музыка и т.д.)
+- Добавление и редактирование произведений, привязка их к жанрам и категориям
+- Написание отзывов на произведения с оценками от 1 до 10
+- Комментирование отзывов других пользователей
+- Формирование рейтинга произведений на основе оценок пользователей
 
 ### Технологический стек
 - Бэкенд: Django + DRF
 - База данных: Sqlite + Redis
 - Аутентификация: JWT токены
 - Документация: ReDoc
+
+### Вся документация API доступна по адресу /redoc
 
 ### Установка и запуск
 1. Клонируйте репозиторий:
@@ -121,9 +151,12 @@ venv\Scripts\activate  # Для Windows
 ```bash
 pip install -r requirements.txt
 ```
+4. Если вы не хотите использовать Redis, пропустите шаг 4.1.
 
-4. Установите и настройте Redis:
+4.1 Установите и настройте Redis:
 ```bash
+Выставите в настройках
+REDIS_ENABLED = True
 # Для MacOS (используя Homebrew)
 brew install redis
 brew services start redis
@@ -159,6 +192,13 @@ python manage.py runserver
 7. Приложение будет доступно по адресам:
 - API бэкенда: http://localhost:8000
 - Документация API: http://localhost:8000/redoc/
+
+
+### Регистрация нового пользователя:
+
+1. Отправьте нужный запрос с корректными данными, как описано в документации к API
+2. Проверьте директорию sent_email и скопируйте код для подтверждения.
+3. Введите данный код в следующем запросе и получите токен.
 
 
 ### Импорт CSV файлов

@@ -1,9 +1,3 @@
-"""Custom validators.
-
-Contains:
-- username_validator
-= ConfirmationCodeValidator
-"""
 from django.core.validators import RegexValidator
 from rest_framework.validators import ValidationError
 

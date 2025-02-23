@@ -138,7 +138,6 @@ class TokenObtainView(PublicAPIView):
             raise
 
 
-
 class UserViewSet(ModelViewSet):
     """ViewSet for managing user accounts and profiles.
 

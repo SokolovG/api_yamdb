@@ -1,14 +1,3 @@
-"""Api urls.
-
-Contains:
-- Category endpoints (/categories/)
-- Genre endpoints (/genres/)
-- Title endpoints (/titles/)
-- User endpoints (/users/)
-- Review endpoints (/titles/{title_id}/reviews/)
-- Comment endpoints (/titles/{title_id}/reviews/{review_id}/comments/)
-- Auth endpoints (/auth/signup/, /auth/token/)
-"""
 from django.urls import include, path
 from rest_framework import routers
 

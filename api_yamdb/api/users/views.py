@@ -1,10 +1,3 @@
-"""Views module for Users.
-
-Contains:
-- SignUpView
-- TokenObtainView
-- UserViewSet
-"""
 from rest_framework import views, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -130,21 +123,19 @@ class TokenObtainView(PublicAPIView):
         """
         serializer = TokenObtainSerializer(data=request.data)
         try:
-            if serializer.is_valid(raise_exception=True):
-                username = serializer.validated_data.get('username')
-                user = User.objects.get(username=username)
-                refresh = RefreshToken.for_user(user)
-                return Response(
-                    {'token': str(refresh.access_token)},
-                    status=status.HTTP_200_OK
-                )
+            serializer.is_valid(raise_exception=True)
+            username = serializer.validated_data.get('username')
+            user = User.objects.get(username=username)
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {'token': str(refresh.access_token)},
+                status=status.HTTP_200_OK
+            )
 
         except ValidationError as error:
             if error.get_codes().get('username') == ['username_not_found']:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             raise
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(ModelViewSet):
@@ -218,10 +209,6 @@ class UserViewSet(ModelViewSet):
                 instance=user,
                 partial=True
             )
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

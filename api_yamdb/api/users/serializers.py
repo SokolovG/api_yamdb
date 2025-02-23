@@ -1,10 +1,3 @@
-"""Serializer for users API.
-
-Contains:
-- SignUpSerializer
-- TokenObtainSerializer
-- UserViewSerializer
-"""
 from rest_framework import serializers
 from api.users.validators import (
     ConfirmationCodeValidator, username_validator
@@ -63,13 +56,12 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data) -> User:
         """Create user and triggers email verification process."""
+        self.user = super().create(validated_data)
         try:
-            self.user = super().create(validated_data)
             confirmation_code = verification_service.generate(
                 self.user.username
             )
             verification_service.send_code(self.user.email, confirmation_code)
-            print("Email sent")
             return self.user
 
         except UsernameEmptyError as error:

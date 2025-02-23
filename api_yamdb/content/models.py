@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.db.models import Avg
+
 from .validators import validate_year
 
 from .constants import (
@@ -68,12 +70,6 @@ class Title(models.Model):
         blank=True,
         null=True
     )
-    rating = models.IntegerField(
-        'Рейтинг',
-        null=True,
-        blank=True,
-        default=0
-    )
     genre = models.ManyToManyField(
         Genre,
         verbose_name='Жанр',
@@ -85,6 +81,10 @@ class Title(models.Model):
         blank=True, null=True,
         on_delete=models.SET_NULL
     )
+
+    @property
+    def rating(self):
+        return self.reviews.aggregate(Avg("score", default=0))
 
     class Meta:
         verbose_name = 'Произведение'

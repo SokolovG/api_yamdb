@@ -7,5 +7,4 @@ class CreateDestroyListViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    """Кастомный вьюсет"""
     pass

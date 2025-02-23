@@ -31,16 +31,19 @@ class User(AbstractUser):
     email = models.EmailField(
         unique=True,
         max_length=MAX_EMAIL_LENGTH,
-        blank=False
+        blank=False,
+        verbose_name='Почта'
     )
     role = models.CharField(
         max_length=MAX_ROLE_LENGTH,
         choices=RoleChoices.choices,
-        default=RoleChoices.USER
+        default=RoleChoices.USER,
+        verbose_name='Роль'
     )
     bio = models.CharField(
         max_length=MAX_BIO_LENGTH,
-        blank=True
+        blank=True,
+        verbose_name='Биография'
     )
 
     @property

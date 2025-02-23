@@ -1,8 +1,9 @@
-"""Модели для работы с отзывами и комментариями."""
-from content.models import Title
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from content.models import Title
 from users.models import User
+from .constants import MIN_SCORE, MAX_SCORE
 
 
 class Review(models.Model):
@@ -20,18 +21,25 @@ class Review(models.Model):
         Title,
         on_delete=models.CASCADE,
         related_name="reviews",
+        verbose_name="Произведение",
     )
-    text = models.TextField(blank=False)
+    text = models.TextField(verbose_name="Текст отзыва")
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="reviews",
+        verbose_name="Автор отзыва",
     )
     score = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)], blank=False
+        validators=[
+            MinValueValidator(MIN_SCORE),
+            MaxValueValidator(MAX_SCORE),
+        ],
+        verbose_name="Оценка",
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
+        verbose_name="Дата публикации",
     )
 
     class Meta:
@@ -65,15 +73,18 @@ class Comment(models.Model):
         Review,
         on_delete=models.CASCADE,
         related_name="comments",
+        verbose_name="Отзыв",
     )
-    text = models.TextField(blank=False)
+    text = models.TextField(verbose_name="Текст комментария")
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="comments",
+        verbose_name="Автор комментария",
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
+        verbose_name="Дата публикации",
     )
 
     class Meta:

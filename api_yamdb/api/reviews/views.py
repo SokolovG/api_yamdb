@@ -36,14 +36,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
             )
         serializer.save(author=self.request.user, title=title)
 
-    def perform_update(self, serializer) -> None:
-        """Переопределение метода обновления отзыва."""
-        serializer.save()
-
-    def perform_destroy(self, instance) -> None:
-        """Переопределение метода удаления отзыва."""
-        instance.delete()
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с комментариями к отзывам."""
@@ -53,8 +45,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_review(self) -> Review:
-        """Получение отзыва по ID."""
-        return get_object_or_404(Review, id=self.kwargs.get("review_id"))
+        """Получение отзыва по ID, title_id."""
+        titile_id = self.kwargs.get("title_id")
+        review_id = self.kwargs.get("review_id")
+        return get_object_or_404(Review, id=review_id, title_id=titile_id)
 
     def get_queryset(self) -> models.QuerySet[Comment]:
         """Возвращает все комментарии для отзыва."""
